@@ -13,7 +13,7 @@
         "name": "Start",
         "topic": "",
         "payload": "",
-        "payloadType": "num",
+        "payloadType": "date",
         "repeat": "900",
         "crontab": "",
         "once": false,
