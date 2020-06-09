@@ -1,0 +1,199 @@
+[
+    {
+        "id": "8857da2e.5e0628",
+        "type": "tab",
+        "label": "Weather",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "14f2b2b.611f74d",
+        "type": "http request",
+        "z": "8857da2e.5e0628",
+        "name": "Dark Sky API",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://api.darksky.net/forecast/<your private key>/<latitude>,<longitude>",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 230,
+        "y": 80,
+        "wires": [
+            [
+                "5a1fcaa0.5b3904"
+            ]
+        ]
+    },
+    {
+        "id": "ab53901c.75343",
+        "type": "inject",
+        "z": "8857da2e.5e0628",
+        "name": "Start",
+        "topic": "",
+        "payload": "1",
+        "payloadType": "str",
+        "repeat": "900",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 80,
+        "wires": [
+            [
+                "14f2b2b.611f74d"
+            ]
+        ]
+    },
+    {
+        "id": "ccc2cbf5.0384a8",
+        "type": "rpi-gpio out",
+        "z": "8857da2e.5e0628",
+        "name": "85F LED",
+        "pin": "15",
+        "set": true,
+        "level": "0",
+        "freq": "",
+        "out": "out",
+        "x": 500,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "90927b83.c36578",
+        "type": "trigger",
+        "z": "8857da2e.5e0628",
+        "op1": "1",
+        "op2": "1",
+        "op1type": "str",
+        "op2type": "str",
+        "duration": "250",
+        "extend": false,
+        "units": "ms",
+        "reset": "",
+        "bytopic": "all",
+        "name": "Alert Pulse",
+        "x": 330,
+        "y": 200,
+        "wires": [
+            [
+                "ccc2cbf5.0384a8"
+            ]
+        ]
+    },
+    {
+        "id": "855717b2.89bc78",
+        "type": "inject",
+        "z": "8857da2e.5e0628",
+        "name": "85F LED OFF",
+        "topic": "",
+        "payload": "0",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 330,
+        "y": 260,
+        "wires": [
+            [
+                "ccc2cbf5.0384a8"
+            ]
+        ]
+    },
+    {
+        "id": "5a1fcaa0.5b3904",
+        "type": "function",
+        "z": "8857da2e.5e0628",
+        "name": "Weather Object",
+        "func": "const weather = {\n    time: msg.payload.currently.time,\n    temperature: msg.payload.currently.temperature,\n    humidity: msg.payload.currently.humidity,\n    pressure: msg.payload.currently.pressure,\n    windSpeed: msg.payload.currently.windSpeed,\n    uvIndex: msg.payload.currently.uvIndex,\n    visibility: msg.payload.currently.visibility\n}\nmsg.payload = weather\nmsg.topic = 'darksky/lau/sj'\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 120,
+        "y": 140,
+        "wires": [
+            [
+                "7eb49b2.400b064",
+                "b37dfca8.31e0b"
+            ]
+        ]
+    },
+    {
+        "id": "7eb49b2.400b064",
+        "type": "switch",
+        "z": "8857da2e.5e0628",
+        "name": "Over 85",
+        "property": "payload.temperature",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "85",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 160,
+        "y": 200,
+        "wires": [
+            [
+                "90927b83.c36578"
+            ]
+        ]
+    },
+    {
+        "id": "753c6871.eed188",
+        "type": "mqtt out",
+        "z": "8857da2e.5e0628",
+        "name": "Publish Data",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "broker": "d799adc.d1a0f5",
+        "x": 510,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "b37dfca8.31e0b",
+        "type": "json",
+        "z": "8857da2e.5e0628",
+        "name": "Convert to JSON",
+        "property": "payload",
+        "action": "str",
+        "pretty": false,
+        "x": 330,
+        "y": 140,
+        "wires": [
+            [
+                "753c6871.eed188"
+            ]
+        ]
+    },
+    {
+        "id": "d799adc.d1a0f5",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "",
+        "broker": "test.mosquitto.org",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "darksky/lau/sj",
+        "birthQos": "0",
+        "birthPayload": "Alive",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]
