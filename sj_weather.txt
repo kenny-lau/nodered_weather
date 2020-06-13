@@ -12,8 +12,8 @@
         "z": "257eaedf.ac1f12",
         "server": "3957a955.8b76ce",
         "name": "Weather DB",
-        "x": 430,
-        "y": 120,
+        "x": 470,
+        "y": 100,
         "wires": [
             []
         ]
@@ -26,7 +26,7 @@
         "topic": "darksky/lau/sj",
         "qos": "0",
         "datatype": "auto",
-        "broker": "7533b41d.359624",
+        "broker": "4ca0fddc.010004",
         "x": 100,
         "y": 40,
         "wires": [
@@ -40,8 +40,8 @@
         "type": "function",
         "z": "257eaedf.ac1f12",
         "name": "Prepare Data",
-        "func": "msg.topic = 'insert into sj_data (time, temperature, humidity, pressure, windSpeed, uvIndex, visibility) values (:time, :temperature, :humidity, :pressure, :windSpeed, :uvIndex, :visibility)' \n\nlet msg1 = {}\nlet temperature = msg.payload.temperature\nmsg1.topic = 'Temperature Live'\nmsg1.payload = temperature\n\n\n\nreturn [msg, msg1];",
-        "outputs": 2,
+        "func": "msg.topic = 'insert into sj_data (time, temperature, humidity, pressure, windSpeed, uvIndex, visibility) values (:time, :temperature, :humidity, :pressure, :windSpeed, :uvIndex, :visibility)' \n\nlet msgTemp = {}\nlet temperature = msg.payload.temperature\nmsgTemp.topic = 'Temperature Live'\nmsgTemp.payload = temperature\n\nlet msgMongo = {}\nmsgMongo.payload = {\n    time: msg.payload.time,\n    temperature: msg.payload.temperature,\n    humidity: msg.payload.humidity,\n    pressure: msg.payload.pressure,\n    windSpeed: msg.payload.windSpeed,\n    uvIndex: msg.payload.uvIndex,\n    visibility: msg.payload.visibility\n}\n\nreturn [msg, msgTemp, msgMongo];",
+        "outputs": 3,
         "noerr": 0,
         "x": 130,
         "y": 160,
@@ -51,6 +51,9 @@
             ],
             [
                 "41ea186d.8249d"
+            ],
+            [
+                "c5b55c92.de93c"
             ]
         ]
     },
@@ -76,7 +79,7 @@
         "z": "257eaedf.ac1f12",
         "name": "",
         "group": "ec7c318d.ee39d8",
-        "order": 0,
+        "order": 1,
         "width": 0,
         "height": 0,
         "label": "Temperature Live",
@@ -107,8 +110,23 @@
         ],
         "useOldStyle": false,
         "outputs": 1,
-        "x": 450,
-        "y": 180,
+        "x": 490,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c5b55c92.de93c",
+        "type": "mongodb3 in",
+        "z": "257eaedf.ac1f12",
+        "service": "_ext_",
+        "configNode": "5faf1d4c.fc41ec",
+        "name": "Insert sj_weather",
+        "collection": "sj_weather",
+        "operation": "insertOne",
+        "x": 490,
+        "y": 220,
         "wires": [
             []
         ]
@@ -124,11 +142,11 @@
         "database": "Weather"
     },
     {
-        "id": "7533b41d.359624",
+        "id": "4ca0fddc.010004",
         "type": "mqtt-broker",
         "z": "",
-        "name": "",
-        "broker": "test.mosquitto.org",
+        "name": "Raspberry Pi Broker",
+        "broker": "192.168.1.22",
         "port": "1883",
         "clientid": "",
         "usetls": false,
@@ -153,14 +171,23 @@
         "tab": "66a158fa.d39d9",
         "order": 1,
         "disp": true,
-        "width": "6",
+        "width": "9",
         "collapse": false
+    },
+    {
+        "id": "5faf1d4c.fc41ec",
+        "type": "mongodb3",
+        "z": "",
+        "uri": "mongodb://127.0.0.1:27017/sj_weather",
+        "name": "Weather Mongo",
+        "options": "",
+        "parallelism": "-1"
     },
     {
         "id": "66a158fa.d39d9",
         "type": "ui_tab",
         "z": "",
-        "name": "Weather Panel",
+        "name": "MySQL Panel",
         "icon": "dashboard",
         "disabled": false,
         "hidden": false

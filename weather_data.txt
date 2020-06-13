@@ -14,7 +14,7 @@
         "method": "GET",
         "ret": "obj",
         "paytoqs": false,
-        "url": "https://api.darksky.net/forecast/<your private key>/<latitude>,<longitude>",
+        "url": "https://api.darksky.net/forecast/a528a668ebd22961bf3142fb66261cf1/37.3354,-121.8930",
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -57,7 +57,7 @@
         "level": "0",
         "freq": "",
         "out": "out",
-        "x": 500,
+        "x": 600,
         "y": 200,
         "wires": []
     },
@@ -74,8 +74,8 @@
         "units": "ms",
         "reset": "",
         "bytopic": "all",
-        "name": "Alert Pulse",
-        "x": 330,
+        "name": "Initiate Alert",
+        "x": 350,
         "y": 200,
         "wires": [
             [
@@ -95,8 +95,8 @@
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "x": 330,
-        "y": 260,
+        "x": 350,
+        "y": 300,
         "wires": [
             [
                 "ccc2cbf5.0384a8"
@@ -132,16 +132,24 @@
                 "t": "gt",
                 "v": "85",
                 "vt": "str"
+            },
+            {
+                "t": "lt",
+                "v": "85",
+                "vt": "str"
             }
         ],
         "checkall": "true",
         "repair": false,
-        "outputs": 1,
-        "x": 160,
+        "outputs": 2,
+        "x": 120,
         "y": 200,
         "wires": [
             [
                 "90927b83.c36578"
+            ],
+            [
+                "83cda4ad.8a3868"
             ]
         ]
     },
@@ -153,7 +161,7 @@
         "topic": "",
         "qos": "",
         "retain": "",
-        "broker": "d799adc.d1a0f5",
+        "broker": "fe9adbfc.5d3d48",
         "x": 510,
         "y": 140,
         "wires": []
@@ -175,20 +183,42 @@
         ]
     },
     {
-        "id": "d799adc.d1a0f5",
+        "id": "83cda4ad.8a3868",
+        "type": "trigger",
+        "z": "8857da2e.5e0628",
+        "op1": "0",
+        "op2": "0",
+        "op1type": "str",
+        "op2type": "str",
+        "duration": "250",
+        "extend": false,
+        "units": "ms",
+        "reset": "",
+        "bytopic": "all",
+        "name": "Cancel Alert",
+        "x": 350,
+        "y": 240,
+        "wires": [
+            [
+                "ccc2cbf5.0384a8"
+            ]
+        ]
+    },
+    {
+        "id": "fe9adbfc.5d3d48",
         "type": "mqtt-broker",
         "z": "",
         "name": "",
-        "broker": "test.mosquitto.org",
+        "broker": "192.168.1.22",
         "port": "1883",
         "clientid": "",
         "usetls": false,
         "compatmode": false,
         "keepalive": "60",
         "cleansession": true,
-        "birthTopic": "darksky/lau/sj",
+        "birthTopic": "",
         "birthQos": "0",
-        "birthPayload": "Alive",
+        "birthPayload": "",
         "closeTopic": "",
         "closeQos": "0",
         "closePayload": "",

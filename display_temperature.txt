@@ -31,14 +31,17 @@
         "type": "function",
         "z": "1d2c3e40.a9e742",
         "name": "Retrieve today weather",
-        "func": "let now = new Date(msg.payload)\nlet month = now.getMonth() + 1\n// Get the time in second since epoch\nlet start = new Date(now.getFullYear()+'.'+month+'.'+now.getDate()).getTime() / 1000\n\nmsg.topic = 'select * from sj_data where time >= :since order by time asc'\nmsg.payload = {since: start}\nreturn msg;",
-        "outputs": 1,
+        "func": "let now = new Date(msg.payload)\nlet month = now.getMonth() + 1\n// Get the time in second since epoch\nlet start = new Date(now.getFullYear()+'.'+month+'.'+now.getDate()).getTime() / 1000\n\nmsg.topic = 'select * from sj_data where time >= :since order by time asc'\nmsg.payload = {since: start}\n\nlet msgMongo = {}\nmsgMongo.payload = {time: {$gte:start}}\n\nreturn [msg, msgMongo];",
+        "outputs": 2,
         "noerr": 0,
         "x": 310,
         "y": 60,
         "wires": [
             [
                 "b467218f.a34768"
+            ],
+            [
+                "a3737ecd.8274a8"
             ]
         ]
     },
@@ -48,7 +51,7 @@
         "z": "1d2c3e40.a9e742",
         "server": "3957a955.8b76ce",
         "name": "",
-        "x": 510,
+        "x": 590,
         "y": 60,
         "wires": [
             [
@@ -60,11 +63,11 @@
         "id": "f6d8e14.81f25a",
         "type": "function",
         "z": "1d2c3e40.a9e742",
-        "name": "Get Temperature",
-        "func": "let datas = msg.payload\nlet size = datas.length\n\nlet data = []\nlet dataPoint = []\ndatas.forEach(point => {\n    dataPoint.push({'x':point.time*1000, 'y': point.temperature})\n})\ndata.push(dataPoint)\nlet tObj = {\n    series: ['Temperature'],\n    data: data,\n    labels: ['']\n}\n\nmsg.topic = 'TemperatURE'\nmsg.payload = [tObj]\n\nreturn msg;",
+        "name": "MySQL Temperature",
+        "func": "let datas = msg.payload\n\nlet data = []\nlet dataPoint = []\ndatas.forEach(point => {\n    dataPoint.push({'x':point.time*1000, 'y': point.temperature})\n})\ndata.push(dataPoint)\nlet tObj = {\n    series: ['Temperature'],\n    data: data,\n    labels: ['']\n}\n\nmsg.payload = [tObj]\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 170,
+        "x": 620,
         "y": 120,
         "wires": [
             [
@@ -77,11 +80,11 @@
         "type": "ui_chart",
         "z": "1d2c3e40.a9e742",
         "name": "",
-        "group": "12e56c70.551aac",
-        "order": 0,
+        "group": "ec7c318d.ee39d8",
+        "order": 2,
         "width": 0,
         "height": 0,
-        "label": "Today Temperature",
+        "label": "Today Temperature MySQL",
         "chartType": "line",
         "legend": "false",
         "xformat": "auto",
@@ -109,8 +112,84 @@
         ],
         "useOldStyle": false,
         "outputs": 1,
-        "x": 410,
-        "y": 120,
+        "x": 640,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a3737ecd.8274a8",
+        "type": "mongodb3 in",
+        "z": "1d2c3e40.a9e742",
+        "service": "_ext_",
+        "configNode": "5faf1d4c.fc41ec",
+        "name": "Temperature SJ",
+        "collection": "sj_weather",
+        "operation": "find.toArray",
+        "x": 320,
+        "y": 280,
+        "wires": [
+            [
+                "c0c886b3.0a6b98"
+            ]
+        ]
+    },
+    {
+        "id": "c0c886b3.0a6b98",
+        "type": "function",
+        "z": "1d2c3e40.a9e742",
+        "name": "Mongo Temperature",
+        "func": "let datas = msg.payload\n\nlet data = []\nlet dataPoint = []\nlet point\nfor (const key in datas) {\n    point = datas[key]\n    dataPoint.push({'x':point.time*1000, 'y': point.temperature})\n}\n\ndata.push(dataPoint)\nlet tObj = {\n    series: ['Temperature'],\n    data: data,\n    labels: ['']\n}\n\nmsg.payload = [tObj]\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 580,
+        "y": 280,
+        "wires": [
+            [
+                "52ddbd39.2e7094"
+            ]
+        ]
+    },
+    {
+        "id": "52ddbd39.2e7094",
+        "type": "ui_chart",
+        "z": "1d2c3e40.a9e742",
+        "name": "",
+        "group": "ec7c318d.ee39d8",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "label": "Today Temperature Mongo",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "auto",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#a448bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 500,
+        "y": 360,
         "wires": [
             []
         ]
@@ -126,21 +205,30 @@
         "database": "Weather"
     },
     {
-        "id": "12e56c70.551aac",
+        "id": "ec7c318d.ee39d8",
         "type": "ui_group",
         "z": "",
-        "name": "Today",
+        "name": "San Jose Live",
         "tab": "66a158fa.d39d9",
-        "order": 2,
+        "order": 1,
         "disp": true,
-        "width": "6",
+        "width": "9",
         "collapse": false
+    },
+    {
+        "id": "5faf1d4c.fc41ec",
+        "type": "mongodb3",
+        "z": "",
+        "uri": "mongodb://127.0.0.1:27017/sj_weather",
+        "name": "Weather Mongo",
+        "options": "",
+        "parallelism": "-1"
     },
     {
         "id": "66a158fa.d39d9",
         "type": "ui_tab",
         "z": "",
-        "name": "Weather Panel",
+        "name": "MySQL Panel",
         "icon": "dashboard",
         "disabled": false,
         "hidden": false
